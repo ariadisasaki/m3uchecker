@@ -4,29 +4,36 @@ const fileInput = document.getElementById("fileInput");
 const loadBtn = document.getElementById("loadBtn");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
-const streamLinkText = document.getElementById("streamLink");
+const streamLink = document.getElementById("streamLink");
 const copyBtn = document.getElementById("copyBtn");
+const streamStatus = document.getElementById("streamStatus");
 
 let playlistData = [];
 let currentIndex = 0;
-let hls;
+let hls = null;
 
-/* Convert */
+/* ============================= */
+/* Convert M3U → JSON */
+/* ============================= */
 function convertToJSON(m3uText){
   const result = [];
   const lines = m3uText.split("\n");
 
-  for(let i=0;i<lines.length;i++){
+  for(let i = 0; i < lines.length; i++){
     if(lines[i].startsWith("#EXTINF")){
-      const name = lines[i].split(",")[1];
+      const name = lines[i].split(",")[1] || "No Name";
       const url = lines[i+1];
-      result.push({name, url});
+      if(url && url.startsWith("http")){
+        result.push({ name, url });
+      }
     }
   }
   return result;
 }
 
+/* ============================= */
 /* Render Playlist */
+/* ============================= */
 function renderPlaylist(){
   playlistDiv.innerHTML = "";
 
@@ -47,16 +54,25 @@ function renderPlaylist(){
   });
 }
 
-/* Play */
+/* ============================= */
+/* Play Current Stream */
+/* ============================= */
 function playCurrent(){
   const item = playlistData[currentIndex];
   if(!item) return;
 
+  // Destroy previous HLS instance safely
   if(hls){
     hls.destroy();
+    hls = null;
   }
 
-  if(item.url.endsWith(".m3u8") && Hls.isSupported()){
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+
+  // Play stream
+  if(item.url.endsWith(".m3u8") && window.Hls && Hls.isSupported()){
     hls = new Hls();
     hls.loadSource(item.url);
     hls.attachMedia(video);
@@ -64,13 +80,17 @@ function playCurrent(){
     video.src = item.url;
   }
 
-  video.play(); // AUTO PLAY
+  video.play().catch(()=>{});
 
-  streamLinkText.textContent = item.url; // tampilkan link
+  // Update UI
+  streamLink.textContent = item.url;
+  checkStreamStatus(item.url);
   renderPlaylist();
 }
 
-/* Navigation */
+/* ============================= */
+/* Next / Prev */
+/* ============================= */
 function next(){
   if(currentIndex < playlistData.length - 1){
     currentIndex++;
@@ -88,20 +108,58 @@ function prev(){
 nextBtn.addEventListener("click", next);
 prevBtn.addEventListener("click", prev);
 
+/* ============================= */
 /* Copy Link */
+/* ============================= */
 copyBtn.addEventListener("click", ()=>{
-  const link = streamLinkText.textContent;
+  const link = streamLink.textContent;
   if(!link) return;
 
-  navigator.clipboard.writeText(link);
-  copyBtn.textContent = "Copied!";
-  setTimeout(()=>copyBtn.textContent="Copy Link",1500);
+  navigator.clipboard.writeText(link).then(()=>{
+    copyBtn.textContent = "Copied!";
+    setTimeout(()=>{
+      copyBtn.textContent = "Copy Link";
+    },1500);
+  });
 });
 
-/* Load */
+/* ============================= */
+/* Check Stream Status */
+/* ============================= */
+async function checkStreamStatus(url){
+  streamStatus.textContent = "Status: Mengecek...";
+  streamStatus.style.color = "orange";
+
+  try{
+    const response = await fetch(url, { method: "HEAD" });
+
+    if(response.ok){
+      streamStatus.textContent = "Status: Link Aktif";
+      streamStatus.style.color = "lightgreen";
+    }else{
+      streamStatus.textContent = "Status: Link Tidak Aktif";
+      streamStatus.style.color = "red";
+    }
+  }catch{
+    streamStatus.textContent = "Status: Tidak Bisa Dicek (CORS)";
+    streamStatus.style.color = "gray";
+  }
+}
+
+/* ============================= */
+/* Video Error Detection */
+/* ============================= */
+video.addEventListener("error", ()=>{
+  streamStatus.textContent = "Status: Gagal Diputar";
+  streamStatus.style.color = "red";
+});
+
+/* ============================= */
+/* Load From URL */
+/* ============================= */
 async function loadFromURL(){
   const url = document.getElementById("m3uUrl").value;
-  if(!url) return alert("Masukkan URL");
+  if(!url) return alert("Masukkan URL terlebih dahulu");
 
   try{
     const res = await fetch(url);
@@ -111,12 +169,15 @@ async function loadFromURL(){
     renderPlaylist();
     playCurrent();
   }catch{
-    alert("Gagal load (mungkin CORS)");
+    alert("Gagal load URL (mungkin CORS aktif)");
   }
 }
 
 loadBtn.addEventListener("click", loadFromURL);
 
+/* ============================= */
+/* Load From File */
+/* ============================= */
 fileInput.addEventListener("change", e=>{
   const reader = new FileReader();
   reader.onload = function(){
@@ -128,7 +189,9 @@ fileInput.addEventListener("change", e=>{
   reader.readAsText(e.target.files[0]);
 });
 
+/* ============================= */
 /* Service Worker */
+/* ============================= */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js");
 }
