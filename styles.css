@@ -81,3 +81,24 @@ video{
   background:#00c853;
   color:black;
 }
+
+.status{
+  margin-top:8px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.stream-link-row{
+  margin-top:8px;
+  background:#062d1a;
+  padding:6px;
+  border-radius:6px;
+}
+
+.stream-link{
+  white-space:nowrap;        /* supaya mendatar */
+  overflow:hidden;
+  text-overflow:ellipsis;    /* jika terlalu panjang */
+  font-size:12px;
+  color:#aaffc3;
+}
