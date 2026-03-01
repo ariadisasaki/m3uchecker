@@ -4,14 +4,14 @@ const fileInput = document.getElementById("fileInput");
 const loadBtn = document.getElementById("loadBtn");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
+const streamLinkText = document.getElementById("streamLink");
+const copyBtn = document.getElementById("copyBtn");
 
 let playlistData = [];
 let currentIndex = 0;
 let hls;
 
-/* ===================== */
-/* M3U → JSON Converter */
-/* ===================== */
+/* Convert */
 function convertToJSON(m3uText){
   const result = [];
   const lines = m3uText.split("\n");
@@ -26,29 +26,28 @@ function convertToJSON(m3uText){
   return result;
 }
 
-/* ===================== */
-/* Render Playlist UI */
-/* ===================== */
+/* Render Playlist */
 function renderPlaylist(){
   playlistDiv.innerHTML = "";
 
   playlistData.forEach((item, index)=>{
     const div = document.createElement("div");
     div.textContent = item.name;
+
     if(index === currentIndex){
       div.classList.add("active");
     }
+
     div.onclick = ()=>{
       currentIndex = index;
       playCurrent();
     };
+
     playlistDiv.appendChild(div);
   });
 }
 
-/* ===================== */
-/* Play Function */
-/* ===================== */
+/* Play */
 function playCurrent(){
   const item = playlistData[currentIndex];
   if(!item) return;
@@ -65,12 +64,13 @@ function playCurrent(){
     video.src = item.url;
   }
 
+  video.play(); // AUTO PLAY
+
+  streamLinkText.textContent = item.url; // tampilkan link
   renderPlaylist();
 }
 
-/* ===================== */
 /* Navigation */
-/* ===================== */
 function next(){
   if(currentIndex < playlistData.length - 1){
     currentIndex++;
@@ -88,9 +88,17 @@ function prev(){
 nextBtn.addEventListener("click", next);
 prevBtn.addEventListener("click", prev);
 
-/* ===================== */
-/* Load File / URL */
-/* ===================== */
+/* Copy Link */
+copyBtn.addEventListener("click", ()=>{
+  const link = streamLinkText.textContent;
+  if(!link) return;
+
+  navigator.clipboard.writeText(link);
+  copyBtn.textContent = "Copied!";
+  setTimeout(()=>copyBtn.textContent="Copy Link",1500);
+});
+
+/* Load */
 async function loadFromURL(){
   const url = document.getElementById("m3uUrl").value;
   if(!url) return alert("Masukkan URL");
@@ -120,9 +128,7 @@ fileInput.addEventListener("change", e=>{
   reader.readAsText(e.target.files[0]);
 });
 
-/* ===================== */
 /* Service Worker */
-/* ===================== */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js");
 }
