@@ -24,18 +24,25 @@
 
   <!-- PLAYER DI ATAS -->
   <section class="card">
-    <video id="video" controls autoplay></video>
 
-    <div class="controls">
-      <button id="prevBtn">Prev</button>
-      <button id="nextBtn">Next</button>
-    </div>
+  <video id="video" controls autoplay></video>
 
-    <div class="stream-info">
-      <small id="streamLink"></small>
-      <button id="copyBtn">Copy Link</button>
-    </div>
-  </section>
+  <div class="status" id="streamStatus">
+    Status: -
+  </div>
+
+  <div class="stream-link-row">
+    <div id="streamLink" class="stream-link"></div>
+  </div>
+
+  <button id="copyBtn">Copy Link</button>
+
+  <div class="controls">
+    <button id="prevBtn">Prev</button>
+    <button id="nextBtn">Next</button>
+  </div>
+
+</section>
 
   <!-- PLAYLIST DI BAWAH -->
   <section class="card">
