@@ -1,8 +1,17 @@
-const output = document.getElementById("output");
+const video = document.getElementById("video");
+const playlistDiv = document.getElementById("playlist");
 const fileInput = document.getElementById("fileInput");
 const loadBtn = document.getElementById("loadBtn");
-const exportBtn = document.getElementById("exportBtn");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
 
+let playlistData = [];
+let currentIndex = 0;
+let hls;
+
+/* ===================== */
+/* M3U → JSON Converter */
+/* ===================== */
 function convertToJSON(m3uText){
   const result = [];
   const lines = m3uText.split("\n");
@@ -17,57 +26,103 @@ function convertToJSON(m3uText){
   return result;
 }
 
-function renderJSON(data){
-  const formatted = JSON.stringify(data, null, 2);
-  output.textContent = formatted;
-  localStorage.setItem("m3u_json", formatted);
+/* ===================== */
+/* Render Playlist UI */
+/* ===================== */
+function renderPlaylist(){
+  playlistDiv.innerHTML = "";
+
+  playlistData.forEach((item, index)=>{
+    const div = document.createElement("div");
+    div.textContent = item.name;
+    if(index === currentIndex){
+      div.classList.add("active");
+    }
+    div.onclick = ()=>{
+      currentIndex = index;
+      playCurrent();
+    };
+    playlistDiv.appendChild(div);
+  });
 }
 
+/* ===================== */
+/* Play Function */
+/* ===================== */
+function playCurrent(){
+  const item = playlistData[currentIndex];
+  if(!item) return;
+
+  if(hls){
+    hls.destroy();
+  }
+
+  if(item.url.endsWith(".m3u8") && Hls.isSupported()){
+    hls = new Hls();
+    hls.loadSource(item.url);
+    hls.attachMedia(video);
+  } else {
+    video.src = item.url;
+  }
+
+  renderPlaylist();
+}
+
+/* ===================== */
+/* Navigation */
+/* ===================== */
+function next(){
+  if(currentIndex < playlistData.length - 1){
+    currentIndex++;
+    playCurrent();
+  }
+}
+
+function prev(){
+  if(currentIndex > 0){
+    currentIndex--;
+    playCurrent();
+  }
+}
+
+nextBtn.addEventListener("click", next);
+prevBtn.addEventListener("click", prev);
+
+/* ===================== */
+/* Load File / URL */
+/* ===================== */
 async function loadFromURL(){
   const url = document.getElementById("m3uUrl").value;
-  if(!url) return alert("Masukkan URL terlebih dahulu");
+  if(!url) return alert("Masukkan URL");
 
   try{
     const res = await fetch(url);
     const text = await res.text();
-    const json = convertToJSON(text);
-    renderJSON(json);
-  }catch(err){
-    alert("Gagal load URL (mungkin CORS aktif)");
+    playlistData = convertToJSON(text);
+    currentIndex = 0;
+    renderPlaylist();
+    playCurrent();
+  }catch{
+    alert("Gagal load (mungkin CORS)");
   }
 }
+
+loadBtn.addEventListener("click", loadFromURL);
 
 fileInput.addEventListener("change", e=>{
   const reader = new FileReader();
   reader.onload = function(){
-    const json = convertToJSON(reader.result);
-    renderJSON(json);
-  }
+    playlistData = convertToJSON(reader.result);
+    currentIndex = 0;
+    renderPlaylist();
+    playCurrent();
+  };
   reader.readAsText(e.target.files[0]);
 });
 
-function exportJSON(){
-  const data = localStorage.getItem("m3u_json");
-  if(!data) return alert("Belum ada data");
-
-  const blob = new Blob([data], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "playlist.json";
-  a.click();
-
-  URL.revokeObjectURL(url);
-}
-
-loadBtn.addEventListener("click", loadFromURL);
-exportBtn.addEventListener("click", exportJSON);
-
-if(localStorage.getItem("m3u_json")){
-  output.textContent = localStorage.getItem("m3u_json");
-}
-
+/* ===================== */
+/* Service Worker */
+/* ===================== */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js");
 }
