@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>M3U to JSON</title>
+  <title>M3U Player</title>
 
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles.css">
+
+  <!-- HLS.js untuk play m3u8 -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
 <header>
-  <h1>M3U to JSON</h1>
+  <h1>M3U to JSON Player</h1>
 </header>
 
 <main class="container">
@@ -21,11 +24,17 @@
 
   <input type="file" id="fileInput" accept=".m3u,.m3u8">
 
-  <button id="exportBtn">Export JSON</button>
+  <section class="card">
+    <h3>Playlist</h3>
+    <div id="playlist"></div>
+  </section>
 
   <section class="card">
-    <h3>Hasil JSON:</h3>
-    <pre id="output"></pre>
+    <video id="video" controls></video>
+    <div class="controls">
+      <button id="prevBtn">Prev</button>
+      <button id="nextBtn">Next</button>
+    </div>
   </section>
 
 </main>
