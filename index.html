@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M3U to JSON</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<header>
+  <h1>M3U to JSON</h1>
+</header>
+
+<main class="container">
+
+  <input type="text" id="m3uUrl" placeholder="Masukkan URL M3U">
+  <button id="loadBtn">Load dari URL</button>
+
+  <input type="file" id="fileInput" accept=".m3u,.m3u8">
+
+  <button id="exportBtn">Export JSON</button>
+
+  <section class="card">
+    <h3>Hasil JSON:</h3>
+    <pre id="output"></pre>
+  </section>
+
+</main>
+
+<script src="./app.js"></script>
+</body>
+</html>
