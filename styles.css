@@ -41,17 +41,6 @@ button{
   border-radius:10px;
 }
 
-#playlist div{
-  padding:8px;
-  border-bottom:1px solid #0f3;
-  cursor:pointer;
-}
-
-#playlist div.active{
-  background:#00c853;
-  color:black;
-}
-
 video{
   width:100%;
   background:black;
@@ -66,4 +55,29 @@ video{
 
 .controls button{
   flex:1;
+}
+
+.stream-info{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.stream-info small{
+  flex:1;
+  word-break:break-all;
+  font-size:11px;
+  color:#aaffc3;
+}
+
+#playlist div{
+  padding:8px;
+  border-bottom:1px solid #0f3;
+  cursor:pointer;
+}
+
+#playlist div.active{
+  background:#00c853;
+  color:black;
 }
