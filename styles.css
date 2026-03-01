@@ -13,7 +13,6 @@ header{
   padding:15px;
   text-align:center;
   background:#0c2a18;
-  font-size:18px;
 }
 
 .container{
@@ -26,7 +25,6 @@ input,button{
   width:100%;
   border-radius:10px;
   border:none;
-  font-size:14px;
 }
 
 button{
@@ -34,22 +32,38 @@ button{
   color:white;
   font-weight:bold;
   cursor:pointer;
-  transition:0.2s;
-}
-
-button:hover{
-  opacity:.85;
 }
 
 .card{
   background:#0e2f1c;
   padding:10px;
-  margin-top:10px;
+  margin-top:15px;
   border-radius:10px;
 }
 
-pre{
-  white-space:pre-wrap;
-  word-break:break-word;
-  font-size:12px;
+#playlist div{
+  padding:8px;
+  border-bottom:1px solid #0f3;
+  cursor:pointer;
+}
+
+#playlist div.active{
+  background:#00c853;
+  color:black;
+}
+
+video{
+  width:100%;
+  background:black;
+  border-radius:10px;
+}
+
+.controls{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.controls button{
+  flex:1;
 }
