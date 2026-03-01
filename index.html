@@ -8,33 +8,39 @@
   <link rel="manifest" href="./manifest.json">
   <link rel="stylesheet" href="./styles.css">
 
-  <!-- HLS.js untuk play m3u8 -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body>
 
 <header>
-  <h1>M3U to JSON Player</h1>
+  <h1>M3U Player</h1>
 </header>
 
 <main class="container">
 
   <input type="text" id="m3uUrl" placeholder="Masukkan URL M3U">
   <button id="loadBtn">Load dari URL</button>
-
   <input type="file" id="fileInput" accept=".m3u,.m3u8">
 
+  <!-- PLAYER DI ATAS -->
   <section class="card">
-    <h3>Playlist</h3>
-    <div id="playlist"></div>
-  </section>
+    <video id="video" controls autoplay></video>
 
-  <section class="card">
-    <video id="video" controls></video>
     <div class="controls">
       <button id="prevBtn">Prev</button>
       <button id="nextBtn">Next</button>
     </div>
+
+    <div class="stream-info">
+      <small id="streamLink"></small>
+      <button id="copyBtn">Copy Link</button>
+    </div>
+  </section>
+
+  <!-- PLAYLIST DI BAWAH -->
+  <section class="card">
+    <h3>Playlist</h3>
+    <div id="playlist"></div>
   </section>
 
 </main>
